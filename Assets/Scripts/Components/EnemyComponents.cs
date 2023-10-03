@@ -6,6 +6,7 @@ public struct EnemyTag : IComponentData
 }
 public struct EnemyData : IComponentData
 {
+	public Entity prefab;
 	public int hp;
 	public int stlength;
 }
