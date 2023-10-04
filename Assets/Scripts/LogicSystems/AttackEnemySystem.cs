@@ -1,19 +1,39 @@
+using Cysharp.Threading.Tasks;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Physics;
+using Unity.Physics.Systems;
 
+[UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
+[UpdateAfter(typeof(PhysicsSystemGroup))]
 public partial struct AttackEnemySystem : ISystem
 {
+	public ComponentLookup<PlayerTag> players;
+	public ComponentLookup<EnemyTag> enemies;
+
+	[BurstCompile]
+	public void OnCreate(ref SystemBase state)
+	{
+		players = state.GetComponentLookup<PlayerTag>();
+		enemies = state.GetComponentLookup<EnemyTag>();
+	}
+	[BurstCompile]
 	public void OnUpdate(ref SystemState state)
 	{
+		players.Update(ref state);
+		enemies.Update(ref state);
+
 		state.Dependency = new EnterPlayerArea
 		{
-			players = state.GetComponentLookup<PlayerTag>(),
-			enemies = state.GetComponentLookup<EnemyTag>(),
+			players = players,
+			enemies = enemies,
 			ecb = state.World.GetOrCreateSystemManaged<BeginSimulationEntityCommandBufferSystem>().CreateCommandBuffer()
 		}.Schedule(SystemAPI.GetSingleton<SimulationSingleton>(), state.Dependency);
 
-	new DamageJob{ parallelWriter = state.World.GetOrCreateSystemManaged<BeginSimulationEntityCommandBufferSystem>().CreateCommandBuffer().AsParallelWriter() }.ScheduleParallel();
+		new DamageJob
+		{ 
+			parallelWriter = state.World.GetOrCreateSystemManaged<BeginSimulationEntityCommandBufferSystem>().CreateCommandBuffer().AsParallelWriter() 
+		}.ScheduleParallel();
 	}
 }
 [BurstCompile]
@@ -25,6 +45,7 @@ public struct EnterPlayerArea : ITriggerEventsJob
 
 	public void Execute(TriggerEvent triggerEvent)
 	{
+		UnityEngine.Debug.Log("当たりました。");
 		var isEntityAPlayer = players.HasComponent(triggerEvent.EntityA);
 		var isEntityBPlayer = players.HasComponent(triggerEvent.EntityB);
 
@@ -33,10 +54,12 @@ public struct EnterPlayerArea : ITriggerEventsJob
 
 		if(isEntityAPlayer && isEntityBEnemy)
 		{
+			UnityEngine.Debug.Log("ダメージを与えます。");
 			AddDamageComponent(triggerEvent.EntityB);
 		}
 		else if(isEntityBPlayer && isEntityAEnemy)
 		{
+			UnityEngine.Debug.Log("ダメージを与えます。");
 			AddDamageComponent(triggerEvent.EntityA);
 		}
 	}

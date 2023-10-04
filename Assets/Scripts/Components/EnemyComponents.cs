@@ -23,3 +23,7 @@ public struct DeadTag : IComponentData
 {
 
 }
+public struct NeedInitTag : IComponentData
+{
+
+}

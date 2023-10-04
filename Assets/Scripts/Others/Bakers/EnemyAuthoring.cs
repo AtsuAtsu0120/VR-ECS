@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 
@@ -19,6 +17,7 @@ public class EnemyAuthoring : MonoBehaviour
 				stlength = authoring.stlength,
 				prefab = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic)
 			});
+			AddComponent(entity, typeof(EnemyTag));
 		}
 	}
 }
