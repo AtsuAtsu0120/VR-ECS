@@ -15,6 +15,7 @@ public partial struct DestroyEnemyJob : IJobEntity
 	public EntityCommandBuffer.ParallelWriter parallelWriter;
 	public void Execute([EntityIndexInQuery] int index, in DeadTag _, Entity entity)
 	{
+		UnityEngine.Debug.Log("íœI");
 		parallelWriter.DestroyEntity(index, entity);
 	}
 }
