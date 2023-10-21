@@ -52,8 +52,9 @@ public partial struct SpawnerSystem : ISystem
 
 			var positionX = math.cos(rad) * radius;
 			var positionZ = math.sin(rad) * radius;
+			var positionY = random.NextFloat(0, 0.5f);
 
-			var position = new float3(positionX, 0, positionZ);
+			var position = new float3(positionX, positionY, positionZ);
 
 			transform.Position = position;
 		}
